@@ -16,7 +16,7 @@ st.set_page_config(page_title="Student Performance Analysis", layout="wide", pag
 st.markdown("""
     <style>
     .main {
-        background-color: #f0f2f6;
+        background-color: #1f2024;
         padding: 20px;
     }
     .stApp {
