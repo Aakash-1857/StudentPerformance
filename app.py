@@ -367,224 +367,147 @@ elif section == "📊 Data Overview":
     stats_df = dataset.describe().round(2)
     st.dataframe(stats_df, use_container_width=True)
 
-# 🔍 Enhanced Exploratory Analysis
-elif section == "🔍 Exploratory Analysis":
-    st.markdown("# 🔍 **Advanced Exploratory Data Analysis**")
+diff > 0 else 'F'} Higher")
+        
+        with col3:
+            writing_diff = dataset.groupby('gender')['writing score'].mean().diff().iloc[-1]
+            st.metric("✍️ Writing Score Gap", f"{abs(writing_diff):.1f}", f"{'M' if writing_diff > 0 else 'F'} Higher")
     
-    # Interactive score analysis
-    analysis_type = st.selectbox(
-        "**Choose Analysis Type:**",
-        ["Score Correlations", "Gender Analysis", "Preparation Impact", "Multi-Factor Analysis"]
-    )
-    
-    if analysis_type == "Score Correlations":
+    elif analysis_type == "Preparation Impact":
+        st.markdown("### 🎯 **Test Preparation Course Impact Analysis**")
+        
         col1, col2 = st.columns(2)
         
         with col1:
-            # 3D Scatter plot
-            fig = px.scatter_3d(dataset, x='math score', y='reading score', z='writing score',
-                              color='gender', title="🌟 3D Score Relationships",
-                              template="plotly_dark")
-            fig.update_layout(scene=dict(bgcolor='rgba(0,0,0,0)'))
+            # Preparation impact on all subjects
+            prep_comparison = dataset.groupby('test preparation course')[['math score', 'reading score', 'writing score']].mean()
+            
+            fig = go.Figure()
+            subjects = ['math score', 'reading score', 'writing score']
+            colors = ['#00d4ff', '#ff6b6b', '#4ecdc4']
+            
+            for i, subject in enumerate(subjects):
+                fig.add_trace(go.Bar(
+                    x=prep_comparison.index,
+                    y=prep_comparison[subject],
+                    name=subject.replace(' score', '').title(),
+                    marker_color=colors[i],
+                    opacity=0.8
+                ))
+            
+            fig.update_layout(
+                title="🚀 Test Prep Course Impact",
+                xaxis_title="Test Preparation Status",
+                yaxis_title="Average Score",
+                template="plotly_dark",
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                barmode='group'
+            )
             st.plotly_chart(fig, use_container_width=True)
         
         with col2:
-            # Correlation heatmap
-            corr_data = dataset[['math score', 'reading score', 'writing score']].corr()
-            fig = px.imshow(corr_data, text_auto=".2f", aspect="auto",
-                          title="🔥 Score Correlation Matrix",
-                          color_continuous_scale="viridis",
-                          template="plotly_dark")
+            # Violin plot showing score distributions
+            fig = px.violin(dataset, x='test preparation course', y='math score',
+                          title="📊 Math Score Distribution by Test Prep",
+                          template="plotly_dark",
+                          color='test preparation course',
+                          color_discrete_map={'completed': '#4ecdc4', 'none': '#ff6b6b'})
+            fig.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)'
+            )
             st.plotly_chart(fig, use_container_width=True)
-
-# 📈 Enhanced Correlation Matrix
-elif section == "📈 Correlation Matrix":
-    st.markdown("# 📈 **Advanced Correlation Analysis**")
-    
-    # Prepare encoded data
-    dataset_encoded = dataset.copy()
-    dataset_encoded['gender_code'] = dataset['gender'].map({'female': 0, 'male': 1})
-    dataset_encoded['test_prep_code'] = dataset['test preparation course'].map({'completed': 1, 'none': 0})
-    dataset_encoded['lunch_code'] = dataset['lunch'].map({'standard': 1, 'free/reduced': 0})
-    
-    # Enhanced correlation matrix
-    corr_cols = ['math score', 'reading score', 'writing score', 'gender_code', 'test_prep_code', 'lunch_code']
-    corr_matrix = dataset_encoded[corr_cols].corr()
-    
-    fig = px.imshow(corr_matrix, text_auto=".3f", aspect="auto",
-                  title="🎯 Complete Correlation Matrix",
-                  color_continuous_scale="RdBu_r",
-                  template="plotly_dark")
-    fig.update_layout(
-        width=800, height=600,
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)'
-    )
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Correlation insights
-    st.markdown("### 🔍 **Key Correlation Insights**")
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        reading_writing_corr = corr_matrix.loc['reading score', 'writing score']
-        st.metric("📚✍️ Reading-Writing", f"{reading_writing_corr:.3f}", "Strongest Link")
-    
-    with col2:
-        math_reading_corr = corr_matrix.loc['math score', 'reading score']
-        st.metric("📐📚 Math-Reading", f"{math_reading_corr:.3f}", "Strong Link")
-    
-    with col3:
-        prep_avg_corr = (corr_matrix.loc['test_prep_code', 'math score'] + 
-                        corr_matrix.loc['test_prep_code', 'reading score'] + 
-                        corr_matrix.loc['test_prep_code', 'writing score']) / 3
-        st.metric("🎯 Test Prep Impact", f"{prep_avg_corr:.3f}", "Moderate Effect")
-
-# 🤖 Enhanced ML Predictions
-elif section == "🤖 ML Predictions":
-    st.markdown("# 🤖 **Machine Learning Predictions**")
-    
-    # Model selection with enhanced UI
-    model_options = {
-        "📐➡️📚 Math → Reading": ("math score", "reading score"),
-        "✍️➡️📚 Writing → Reading": ("writing score", "reading score"),
-        "✍️➡️📐 Writing → Math": ("writing score", "math score")
-    }
-    
-    selected_model = st.selectbox("**Choose Prediction Model:**", list(model_options.keys()))
-    input_col, target_col = model_options[selected_model]
-    
-    # Train model
-    X = dataset[[input_col]]
-    y = dataset[target_col]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    
-    # Model performance
-    rmse = np.sqrt(np.mean((y_test - y_pred) ** 2))
-    r2_score = model.score(X_test, y_test)
-    
-    # Display results
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.metric("🎯 Model Accuracy (R²)", f"{r2_score:.3f}", f"RMSE: {rmse:.2f}")
         
-        # Interactive prediction
-        st.markdown("### 🎮 **Try Your Own Prediction**")
-        user_input = st.slider(f"Input {input_col}", 
-                              int(dataset[input_col].min()), 
-                              int(dataset[input_col].max()), 
-                              int(dataset[input_col].mean()))
+        # Preparation effectiveness metrics
+        st.markdown("### 📈 **Preparation Effectiveness Metrics**")
+        col1, col2, col3 = st.columns(3)
         
-        prediction = model.predict([[user_input]])[0]
-        st.success(f"🔮 **Predicted {target_col}:** {prediction:.1f}")
+        prep_impact = dataset.groupby('test preparation course')[['math score', 'reading score', 'writing score']].mean()
+        
+        with col1:
+            math_improvement = prep_impact.loc['completed', 'math score'] - prep_impact.loc['none', 'math score']
+            st.metric("📐 Math Improvement", f"+{math_improvement:.1f}", "Points")
+        
+        with col2:
+            reading_improvement = prep_impact.loc['completed', 'reading score'] - prep_impact.loc['none', 'reading score']
+            st.metric("📚 Reading Improvement", f"+{reading_improvement:.1f}", "Points")
+        
+        with col3:
+            writing_improvement = prep_impact.loc['completed', 'writing score'] - prep_impact.loc['none', 'writing score']
+            st.metric("✍️ Writing Improvement", f"+{writing_improvement:.1f}", "Points")
     
-    with col2:
-        # Visualization
-        fig = go.Figure()
+    elif analysis_type == "Multi-Factor Analysis":
+        st.markdown("### 🎭 **Multi-Factor Performance Analysis**")
         
-        # Scatter plot
-        fig.add_trace(go.Scatter(
-            x=dataset[input_col], y=dataset[target_col],
-            mode='markers', name='Actual Data',
-            marker=dict(color='rgba(0, 212, 255, 0.6)', size=8)
-        ))
+        col1, col2 = st.columns(2)
         
-        # Regression line
-        x_line = np.linspace(dataset[input_col].min(), dataset[input_col].max(), 100)
-        y_line = model.predict(x_line.reshape(-1, 1))
-        fig.add_trace(go.Scatter(
-            x=x_line, y=y_line,
-            mode='lines', name='Prediction Line',
-            line=dict(color='#ff6b6b', width=3)
-        ))
+        with col1:
+            # Parallel coordinates plot
+            fig = px.parallel_coordinates(
+                dataset,
+                dimensions=['math score', 'reading score', 'writing score'],
+                color='math score',
+                color_continuous_scale='viridis',
+                title="🌈 Parallel Coordinates: All Scores",
+                template="plotly_dark"
+            )
+            fig.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)'
+            )
+            st.plotly_chart(fig, use_container_width=True)
         
-        # User prediction point
-        fig.add_trace(go.Scatter(
-            x=[user_input], y=[prediction],
-            mode='markers', name='Your Prediction',
-            marker=dict(color='#ffd93d', size=15, symbol='star')
-        ))
+        with col2:
+            # Combined factor analysis
+            fig = px.scatter(dataset, x='math score', y='reading score',
+                           size='writing score', color='gender',
+                           symbol='test preparation course',
+                           title="🎯 Multi-Dimensional Score Analysis",
+                           template="plotly_dark",
+                           hover_data=['writing score', 'lunch'])
+            fig.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)'
+            )
+            st.plotly_chart(fig, use_container_width=True)
         
-        fig.update_layout(
-            title=f"🎯 {selected_model} Model",
-            xaxis_title=input_col,
-            yaxis_title=target_col,
+        # Factor interaction analysis
+        st.markdown("### 🔄 **Factor Interactions**")
+        
+        # Create a comprehensive analysis
+        factor_analysis = dataset.groupby(['gender', 'test preparation course', 'lunch']).agg({
+            'math score': 'mean',
+            'reading score': 'mean',
+            'writing score': 'mean'
+        }).round(1).reset_index()
+        
+        # Sunburst chart for hierarchical factor analysis
+        fig = px.sunburst(
+            factor_analysis,
+            path=['gender', 'test preparation course', 'lunch'],
+            values='math score',
+            title="🌟 Hierarchical Factor Analysis (Math Scores)",
             template="plotly_dark",
+            color='math score',
+            color_continuous_scale='viridis'
+        )
+        fig.update_layout(
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)'
         )
-        
         st.plotly_chart(fig, use_container_width=True)
-
-# 🎯 Enhanced Key Insights
-elif section == "🎯 Key Insights":
-    st.markdown("# 🎯 **Strategic Insights & Recommendations**")
-    
-    # Key findings with enhanced presentation
-    insights = [
-        {
-            "title": "📚✍️ Reading-Writing Synergy",
-            "metric": f"{dataset['reading score'].corr(dataset['writing score']):.1%}",
-            "description": "Strong correlation suggests integrated language skills development",
-            "color": "#00d4ff"
-        },
-        {
-            "title": "👥 Gender Performance Patterns",
-            "metric": f"{abs(dataset.groupby('gender')['math score'].mean().diff().iloc[-1]):.1f}",
-            "description": "Point difference in math scores between genders",
-            "color": "#ff6b6b"
-        },
-        {
-            "title": "🎯 Test Prep Effectiveness",
-            "metric": f"{dataset.groupby('test preparation course')['math score'].mean().diff().iloc[-1]:.1f}",
-            "description": "Average score improvement from test preparation",
-            "color": "#4ecdc4"
-        },
-        {
-            "title": "🍽️ Socioeconomic Impact",
-            "metric": f"{dataset.groupby('lunch')['reading score'].mean().diff().iloc[-1]:.1f}",
-            "description": "Score gap between lunch program participants",
-            "color": "#ffd93d"
-        }
-    ]
-    
-    cols = st.columns(2)
-    for i, insight in enumerate(insights):
-        with cols[i % 2]:
-            st.markdown(f"""
-            <div class='metric-card' style='border-color: {insight["color"]}'>
-                <h3 style='color: {insight["color"]}; margin: 0;'>{insight["title"]}</h3>
-                <h2 style='color: #fafafa; margin: 0.5rem 0;'>{insight["metric"]}</h2>
-                <p style='color: #b0b0b0; margin: 0;'>{insight["description"]}</p>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    # Strategic recommendations
-    st.markdown("---")
-    st.markdown("### 🚀 **Strategic Recommendations**")
-    
-    recommendations = [
-        "🎯 **Integrated Learning**: Leverage the strong reading-writing correlation for combined curriculum design",
-        "📊 **Personalized Approaches**: Address gender-specific learning preferences in STEM subjects",
-        "🔄 **Test Prep Optimization**: Enhance preparation programs for maximum score improvement",
-        "🤝 **Equity Initiatives**: Implement targeted support for students from different socioeconomic backgrounds",
-        "📈 **Predictive Analytics**: Use ML models to identify at-risk students early in the academic year"
-    ]
-    
-    for rec in recommendations:
-        st.markdown(f"- {rec}")
-
-# 🎨 Footer with style
-st.markdown("---")
-st.markdown("""
-<div style='text-align: center; padding: 2rem; background: linear-gradient(90deg, rgba(0, 212, 255, 0.1), rgba(255, 107, 107, 0.1)); border-radius: 15px; margin-top: 2rem;'>
-    <h3 style='color: #00d4ff; margin: 0;'>🚀 Built with Maximum Flex</h3>
-    <p style='color: #b0b0b0; margin: 0.5rem 0;'>Streamlit × Advanced Analytics × S-Class Design</p>
-    <p style='color: #666; margin: 0; font-size: 0.9rem;'>© 2025 Student Performance Analytics Dashboard</p>
-</div>
-""", unsafe_allow_html=True)
+        
+        # Top and bottom performers
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🏆 **Top Performers**")
+            dataset['total_score'] = dataset['math score'] + dataset['reading score'] + dataset['writing score']
+            top_performers = dataset.nlargest(5, 'total_score')[['gender', 'test preparation course', 'lunch', 'total_score']]
+            st.dataframe(top_performers, use_container_width=True)
+        
+        with col2:
+            st.markdown("#### 📈 **Improvement Opportunities**")
+            bottom_performers = dataset.nsmallest(5, 'total_score')[['gender', 'test preparation course', 'lunch', 'total_score']]
+            st.dataframe(bottom_performers, use_container_width=True)
