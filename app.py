@@ -12,7 +12,7 @@ from plotly.subplots import make_subplots
 # Set page configuration for a professional look
 st.set_page_config(page_title="Student Performance Analysis", layout="wide", page_icon="📚")
 
-# Custom CSS for S-class aesthetics
+# Custom CSS for S-class aesthetics with fixed font colors
 st.markdown("""
     <style>
     .main {
@@ -22,14 +22,16 @@ st.markdown("""
     .stApp {
         max-width: 1200px;
         margin: 0 auto;
+        background-color: #0e1117 !important;
+        color: #FFFFFF !important;
     }
-    h1, h2, h3 {
-        color: #1f2a44;
+    h1, h2, h3, h4, h5, h6, p, div, span, label, .stMarkdown, .stText {
+        color: #FFFFFF !important;
         font-family: 'Arial', sans-serif;
     }
     .stButton>button {
         background-color: #4CAF50;
-        color: white;
+        color: #FFFFFF !important;
         border-radius: 8px;
         padding: 10px 20px;
     }
@@ -41,6 +43,18 @@ st.markdown("""
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        color: #FFFFFF !important;
+    }
+    .sidebar .sidebar-content * {
+        color: #FFFFFF !important;
+    }
+    .stSelectbox, .stSlider, .stTextInput, .stMultiSelect {
+        color: #FFFFFF !important;
+        background-color: #333333 !important;
+    }
+    .stDataFrame, .stTable {
+        color: #FFFFFF !important;
+        background-color: #1a1a1a !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -63,7 +77,6 @@ if section == "Home":
     """)
 
 # Data Overview
-# Replace the "Data Overview" section in app.py
 elif section == "Data Overview":
     st.title("Data Overview")
     st.markdown("### Understanding the Dataset")
@@ -108,12 +121,8 @@ elif section == "Data Overview":
     except Exception as e:
         st.error(f"Error loading dataset: {e}")
         st.write("Please ensure 'StudentsPerformance.csv' is in the same directory as the app and has the expected structure.")
+
 # Exploratory Data Analysis
-
-
-
-# ... (other imports and app code remain unchanged)
-
 elif section == "Exploratory Data Analysis":
     st.title("Exploratory Data Analysis")
     st.markdown("### Uncovering Insights Through Visualizations")
@@ -137,7 +146,7 @@ elif section == "Exploratory Data Analysis":
             fig = px.scatter(dataset, x=x_col, y=y_col, color=score_option.lower(), 
                              title=f"{x_col.capitalize()} vs. {y_col.capitalize()} Scores by {score_option}",
                              trendline="ols", trendline_color_override="#FF4C4C")
-        fig.update_layout(plot_bgcolor="white", font=dict(color="#1f2a44"))
+        fig.update_layout(paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"))
         st.plotly_chart(fig, use_container_width=True)
         corr = dataset[x_col].corr(dataset[y_col]) * 100
         st.markdown(f"**Insight**: {x_col.capitalize()} and {y_col.capitalize()} have a {corr:.2f}% correlation. {score_option} reveals nuanced patterns (e.g., gender differences in score clusters).")
@@ -148,7 +157,7 @@ elif section == "Exploratory Data Analysis":
                                 color=score_option.lower() if score_option != "None" else None,
                                 title="Pair Plot of Scores", height=600)
         fig.update_traces(diagonal_visible=False)
-        fig.update_layout(plot_bgcolor="white", font=dict(color="#1f2a44"))
+        fig.update_layout(paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"))
         st.plotly_chart(fig, use_container_width=True)
         st.markdown("**Insight**: Reading and writing scores show the tightest clustering (95% correlation), while math scores are more spread, especially for lower values.")
 
@@ -165,14 +174,14 @@ elif section == "Exploratory Data Analysis":
         with col1:
             fig = px.box(dataset, x=cat_var.lower(), y=score_col, color=cat_var.lower(),
                          title=f"{score_type} Distribution by {cat_var}", color_discrete_sequence=px.colors.qualitative.Set2)
-            fig.update_layout(plot_bgcolor="white", font=dict(color="#1f2a44"))
+            fig.update_layout(paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"))
             st.plotly_chart(fig, use_container_width=True)
         
         # Violin Plot
         with col2:
             fig = px.violin(dataset, x=cat_var.lower(), y=score_col, color=cat_var.lower(), box=True,
                             title=f"{score_type} Distribution by {cat_var}", color_discrete_sequence=px.colors.qualitative.Set2)
-            fig.update_layout(plot_bgcolor="white", font=dict(color="#1f2a44"))
+            fig.update_layout(paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"))
             st.plotly_chart(fig, use_container_width=True)
         st.markdown(f"**Insight**: {score_type} varies across {cat_var.lower()}. For example, females tend to have higher reading/writing scores, while test preparation slightly boosts all scores.")
 
@@ -182,57 +191,57 @@ elif section == "Exploratory Data Analysis":
         filtered_data = dataset if not filter_cat else dataset[dataset[cat_var.lower()].isin(filter_cat)]
         fig = px.histogram(filtered_data, x=score_col, color=cat_var.lower() if filter_cat else None,
                            title=f"{score_type} Histogram", nbins=30, color_discrete_sequence=px.colors.qualitative.Set2)
-        fig.update_layout(plot_bgcolor="white", font=dict(color="#1f2a44"), bargap=0.1)
+        fig.update_layout(paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"), bargap=0.1)
         st.plotly_chart(fig, use_container_width=True)
         st.markdown(f"**Insight**: The distribution of {score_type.lower()} shows {cat_var.lower()} differences, with some groups (e.g., test prep completers) skewing higher.")
 
     # Categorical Comparisons
     with st.expander("Categorical Comparisons"):
-            st.subheader("Mean Scores by Categorical Variables")
-            st.write("Bar plots compare average scores across categories, with error bars showing standard deviation for variability.")
-            cat_var = st.selectbox("Select Category:", ["Gender", "Race/Ethnicity", "Parental Level of Education", "Lunch", "Test Preparation Course"], key="bar_cat")
+        st.subheader("Mean Scores by Categorical Variables")
+        st.write("Bar plots compare average scores across categories, with error bars showing standard deviation for variability.")
+        cat_var = st.selectbox("Select Category:", ["Gender", "Race/Ethnicity", "Parental Level of Education", "Lunch", "Test Preparation Course"], key="bar_cat")
+        
+        # Bar Plot with Error Bars
+        try:
+            mean_scores = dataset.groupby(cat_var.lower())[["math score", "reading score", "writing score"]].agg(["mean", "std"]).reset_index()
+            fig = make_subplots(rows=1, cols=3, subplot_titles=("Math Score", "Reading Score", "Writing Score"))
+            for i, score in enumerate(["math score", "reading score", "writing score"], 1):
+                fig.add_trace(go.Bar(
+                    x=mean_scores[cat_var.lower()], y=mean_scores[(score, "mean")],
+                    error_y=dict(type="data", array=mean_scores[(score, "std")], visible=True),
+                    name=score, marker_color=["#FF4C4C", "#FF9999", "#FFB6B6"][i-1]
+                ), row=1, col=i)
+            fig.update_layout(title=f"Mean Scores by {cat_var}", showlegend=False, paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"))
+            st.plotly_chart(fig, use_container_width=True)
             
-            # Bar Plot with Error Bars
-            try:
-                mean_scores = dataset.groupby(cat_var.lower())[["math score", "reading score", "writing score"]].agg(["mean", "std"]).reset_index()
-                fig = make_subplots(rows=1, cols=3, subplot_titles=("Math Score", "Reading Score", "Writing Score"))
-                for i, score in enumerate(["math score", "reading score", "writing score"], 1):
-                    fig.add_trace(go.Bar(
-                        x=mean_scores[cat_var.lower()], y=mean_scores[(score, "mean")],
-                        error_y=dict(type="data", array=mean_scores[(score, "std")], visible=True),
-                        name=score, marker_color=["#FF4C4C", "#FF9999", "#FFB6B6"][i-1]
-                    ), row=1, col=i)
-                fig.update_layout(title=f"Mean Scores by {cat_var}", showlegend=False, plot_bgcolor="white", font=dict(color="#1f2a44"))
-                st.plotly_chart(fig, use_container_width=True)
-                
-                # Tailored Insight
-                def get_insight(cat_var, mean_scores):
-                    if cat_var.lower() == "gender":
-                        math_diff = mean_scores[mean_scores["gender"] == "male"][("math score", "mean")].iloc[0] - mean_scores[mean_scores["gender"] == "female"][("math score", "mean")].iloc[0]
-                        read_diff = mean_scores[mean_scores["gender"] == "female"][("reading score", "mean")].iloc[0] - mean_scores[mean_scores["gender"] == "male"][("reading score", "mean")].iloc[0]
-                        return f"Females outperform males in reading (+{read_diff:.1f} points) and writing, while males have a slight edge in math (+{math_diff:.1f} points)."
-                    elif cat_var.lower() == "race/ethnicity":
-                        top_group = mean_scores[("math score", "mean")].idxmax()
-                        top_score = mean_scores.loc[top_group, ("math score", "mean")]
-                        return f"Group {mean_scores.loc[top_group, 'race/ethnicity']} has the highest average scores, particularly in math ({top_score:.1f}), suggesting potential cultural or socioeconomic factors."
-                    elif cat_var.lower() == "parental level of education":
-                        top_edu = mean_scores[("reading score", "mean")].idxmax()
-                        top_score = mean_scores.loc[top_edu, ("reading score", "mean")]
-                        return f"Higher parental education (e.g., {mean_scores.loc[top_edu, 'parental level of education']}) correlates with better scores, especially in reading ({top_score:.1f}), but the effect plateaus at higher levels."
-                    elif cat_var.lower() == "lunch":
-                        std_score = mean_scores[mean_scores["lunch"] == "standard"][("math score", "mean")].iloc[0]
-                        free_score = mean_scores[mean_scores["lunch"] == "free/reduced"][("math score", "mean")].iloc[0]
-                        return f"Students with standard lunch score higher across all subjects (e.g., math: {std_score:.1f} vs. {free_score:.1f}), likely reflecting socioeconomic advantages."
-                    elif cat_var.lower() == "test preparation course":
-                        completed_score = mean_scores[mean_scores["test preparation course"] == "completed"][("math score", "mean")].iloc[0]
-                        none_score = mean_scores[mean_scores["test preparation course"] == "none"][("math score", "mean")].iloc[0]
-                        return f"Test preparation courses provide a modest boost (e.g., math: {completed_score:.1f} vs. {none_score:.1f}), but the impact is smaller than expected."
-                    return "No specific insight available for this category."
+            # Tailored Insight
+            def get_insight(cat_var, mean_scores):
+                if cat_var.lower() == "gender":
+                    math_diff = mean_scores[mean_scores["gender"] == "male"][("math score", "mean")].iloc[0] - mean_scores[mean_scores["gender"] == "female"][("math score", "mean")].iloc[0]
+                    read_diff = mean_scores[mean_scores["gender"] == "female"][("reading score", "mean")].iloc[0] - mean_scores[mean_scores["gender"] == "male"][("reading score", "mean")].iloc[0]
+                    return f"Females outperform males in reading (+{read_diff:.1f} points) and writing, while males have a slight edge in math (+{math_diff:.1f} points)."
+                elif cat_var.lower() == "race/ethnicity":
+                    top_group = mean_scores[("math score", "mean")].idxmax()
+                    top_score = mean_scores.loc[top_group, ("math score", "mean")]
+                    return f"Group {mean_scores.loc[top_group, 'race/ethnicity']} has the highest average scores, particularly in math ({top_score:.1f}), suggesting potential cultural or socioeconomic factors."
+                elif cat_var.lower() == "parental level of education":
+                    top_edu = mean_scores[("reading score", "mean")].idxmax()
+                    top_score = mean_scores.loc[top_edu, ("reading score", "mean")]
+                    return f"Higher parental education (e.g., {mean_scores.loc[top_edu, 'parental level of education']}) correlates with better scores, especially in reading ({top_score:.1f}), but the effect plateaus at higher levels."
+                elif cat_var.lower() == "lunch":
+                    std_score = mean_scores[mean_scores["lunch"] == "standard"][("math score", "mean")].iloc[0]
+                    free_score = mean_scores[mean_scores["lunch"] == "free/reduced"][("math score", "mean")].iloc[0]
+                    return f"Students with standard lunch score higher across all subjects (e.g., math: {std_score:.1f} vs. {free_score:.1f}), likely reflecting socioeconomic advantages."
+                elif cat_var.lower() == "test preparation course":
+                    completed_score = mean_scores[mean_scores["test preparation course"] == "completed"][("math score", "mean")].iloc[0]
+                    none_score = mean_scores[mean_scores["test preparation course"] == "none"][("math score", "mean")].iloc[0]
+                    return f"Test preparation courses provide a modest boost (e.g., math: {completed_score:.1f} vs. {none_score:.1f}), but the impact is smaller than expected."
+                return "No specific insight available for this category."
 
-                insight = get_insight(cat_var, mean_scores)
-                st.markdown(f"**Insight**: {insight}")
-            except Exception as e:
-                st.error(f"Error rendering bar plot: {e}")
+            insight = get_insight(cat_var, mean_scores)
+            st.markdown(f"**Insight**: {insight}")
+        except Exception as e:
+            st.error(f"Error rendering bar plot: {e}")
 
     # Correlation Analysis
     with st.expander("Correlation Analysis"):
@@ -248,7 +257,7 @@ elif section == "Exploratory Data Analysis":
         # Heatmap
         fig = px.imshow(corr_matrix, text_auto=".2f", color_continuous_scale="RdBu", aspect="auto",
                         title="Correlation Heatmap", labels=dict(color="Correlation"))
-        fig.update_layout(plot_bgcolor="white", font=dict(color="#1f2a44"))
+        fig.update_layout(paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"))
         st.plotly_chart(fig, use_container_width=True)
         st.markdown("**Insight**: Reading and writing scores have a 95% correlation, while categorical factors (gender, test prep, lunch) show weaker correlations (~20-30%).")
 
@@ -266,7 +275,7 @@ elif section == "Exploratory Data Analysis":
                     "lunch_code": "Lunch (0=Free, 1=Standard)"},
             title=f"Parallel Coordinates by {cat_var}"
         )
-        fig.update_layout(font=dict(color="#1f2a44"))
+        fig.update_layout(paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"))
         st.plotly_chart(fig, use_container_width=True)
         st.markdown(f"**Insight**: This plot reveals multi-variable interactions. For example, high scores often align with standard lunch and test preparation.")
 
@@ -283,7 +292,7 @@ elif section == "Exploratory Data Analysis":
         grouped_data = dataset.groupby([cat1.lower(), cat2.lower()])[score_col].mean().reset_index()
         fig = px.bar(grouped_data, x=cat1.lower(), y=score_col, color=cat2.lower(), barmode="group",
                      title=f"Mean {score_type} by {cat1} and {cat2}", color_discrete_sequence=px.colors.qualitative.Set2)
-        fig.update_layout(plot_bgcolor="white", font=dict(color="#1f2a44"))
+        fig.update_layout(paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"))
         st.plotly_chart(fig, use_container_width=True)
         st.markdown(f"**Insight**: Interactions between {cat1.lower()} and {cat2.lower()} reveal nuanced effects. For example, test preparation benefits vary by parental education level.")
 
@@ -300,6 +309,7 @@ elif section == "Exploratory Data Analysis":
             - **Interactions**: Combining factors (e.g., gender and parental education) reveals complex patterns, such as stronger test prep effects for certain groups.
             - **Distributions**: Scores are roughly normal, with slight right skew for lower performers, varying by category.
         """)
+
 # Correlation Analysis
 elif section == "Correlation Analysis":
     st.title("Correlation Analysis")
@@ -354,7 +364,8 @@ elif section == "Regression Models":
         y = [model.coef_[0] * i + model.intercept_ for i in x]
         line = go.Scatter(x=x, y=y, mode='lines', name='Model Prediction', line=dict(color='red'))
         fig = go.Figure(data=[scatter, line])
-        fig.update_layout(title=title, xaxis_title=input_col, yaxis_title=target_col)
+        fig.update_layout(title=title, xaxis_title=input_col, yaxis_title=target_col, 
+                          paper_bgcolor="#0e1117", plot_bgcolor="#0e1117", font=dict(color="#FFFFFF"))
         st.plotly_chart(fig, use_container_width=True)
 
         # Interactive prediction
@@ -367,7 +378,7 @@ elif section == "Regression Models":
 
     if model_choice == "Math → Reading":
         model = train_and_plot_model('math score', 'reading score', 'Math vs. Reading Score with Regression Line')
-        st.markdown(f"**Model Details**: Slope = {model.coef_[0]:.2f} Ministries of Education, Intercept = {model.intercept_:.2f}")
+        st.markdown(f"**Model Details**: Slope = {model.coef_[0]:.2f}, Intercept = {model.intercept_:.2f}")
         st.markdown("**Insight**: The model predicts reading scores from math scores with an RMSE of ~8, indicating reasonable accuracy but struggles with outliers.")
     elif model_choice == "Writing → Reading":
         model = train_and_plot_model('writing score', 'reading score', 'Writing vs. Reading Score with Regression Line')
@@ -409,7 +420,7 @@ elif section == "Conclusions":
 # Footer
 st.markdown("""
     <hr>
-    <div style='text-align: center; color: #666;'>
+    <div style='text-align: center; color: #FFFFFF;'>
         Built with Streamlit | Data Source: StudentsPerformance.csv | © 2025 Student Performance Analysis
     </div>
 """, unsafe_allow_html=True)
